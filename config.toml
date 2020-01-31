@@ -1,0 +1,36 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "Pathivu"
+themesDir = "themes"
+intro = "hello"
+theme = "hugo-whisper-theme"
+[[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 1
+
+[[menu.main]]
+    name = "Docs"
+    url = "/docs/"
+    weight = 2
+[[menu.main]]
+    name = "Twitter"
+    url = "https://twitter.com/PathivuHQ"
+    weight = 3
+[params]
+   homepage_button_link = '/docs'
+   homepage_button_text = 'Read The Docs'
+   homepage_image = 'tail.gif'
+   google_analytics_id='UA-86753026-3'
+[params.logo]
+      standard  = "pathivu.jpeg"
+      mobile = "pathivu_mobile.jpeg"
+[params.homepage_meta_tags]
+    meta_description = "Pathivu is a log ingestion and query engine."
+    meta_og_title = "Pathivu - Logs you can search"
+    meta_og_type = "website"
+    meta_og_url = "https://pathiuv.io"
+    meta_og_description = "Pathivu is a log ingestion and query engine."
+    meta_twitter_card = "summary"
+    meta_twitter_site = "@PathivuHQ"
+    meta_twitter_creator = "@PathiuvHQ"

@@ -1,0 +1,4 @@
+[submodule "public"]
+	path = public
+	url = https://github.com/pathivu/pathivu.github.io.git
+	branch = master
