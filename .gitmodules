@@ -2,3 +2,6 @@
 	path = public
 	url = https://github.com/pathivu/pathivu.github.io.git
 	branch = master
+[submodule "themes/hugo-whisper-theme"]
+	path = themes/hugo-whisper-theme
+	url = https://github.com/jugglerx/hugo-whisper-theme.git
