@@ -11,6 +11,11 @@ Queries in Pathivu can be used to aggregate log data and perform operations on i
 
 Pathivu listens for query requests on port `5180` with the use of an HTTP(s) server. This exposes a simple way of sending commands and queries to the Pathivu backend. It currently supports the following queries:
 
+<br>
+
+---
+
+### Index
 
 - [Selection](#selection)
 	- [Fuzzy Search](#fuzzysearch)
@@ -19,9 +24,19 @@ Pathivu listens for query requests on port `5180` with the use of an HTTP(s) ser
 	- [Base Count](#basecount)
 	- [Aggregated Count](#aggregatedcount)
 - [Average](#average)
+	- [Base Average](#baseaverage)
+	- [Aggregated Average](#aggregatedaverage)
 - [Distinct](#distinct)
+	- [Base Distinct](#basedistinct)
+	- [Distinct Count](#countdistinct)
+- [Limit](#limit)
 - [Pipe](#pipe)
 - [Source](#source)
+
+---
+
+<br>
+
 
 If you would like to see more queries, feel free to create an [issue](https://github.com/pathivu/pathivu/issues) on our source repository, and we will get back to you.
 
@@ -49,7 +64,7 @@ Consider the following JSON
 	"details": {
 		"message": "APIKEY not provided",
 	}
-	"source": "app"
+	"from": "app"
     },
     {
 	"ts": 2,
@@ -59,7 +74,7 @@ Consider the following JSON
 		"error_code": "500"
 	},
 	"error_code": "500",
-	"source": "app"
+	"from": "app"
     }
    ]
 }
@@ -86,11 +101,13 @@ This query will give you the following output:
 	"details": {
 		"message": "APIKEY not provided",
 	}
-	"source": "app"
+	"from": "app"
     }
    ]
 }
 ```
+
+[Go to index](#index)
 
 <h6 id="structuredsearch"> Structured Search </h4>
 
@@ -112,11 +129,13 @@ This query will give you the following output:
 		"message": "APIKEY not provided",
 		"error_code": "500"
 	}
-	"source": "app"
+	"from": "app"
     }
    ]
 }
 ```
+
+[Go to index](#index)
 
 <br>
 
@@ -138,7 +157,7 @@ Consider the following log JSON:
           "message": "Error connecting to database"
         },
         "level": "fatal",
-        "source": "backend"
+        "from": "backend"
       },
       "source": "demo"
     },
@@ -150,7 +169,7 @@ Consider the following log JSON:
           "message": "Error connecting to database"
         },
         "level": "fatal",
-        "source": "app"
+        "from": "app"
       },
       "source": "demo"
     },
@@ -161,7 +180,7 @@ Consider the following log JSON:
           "message": "APIKEY not provided"
         },
         "level": "warn",
-        "source": "app"
+        "from": "app"
       },
       "source": "demo"
     }
@@ -171,10 +190,10 @@ Consider the following log JSON:
 
 <h6 id="basecount"> Base Count </h4>
 
-Base count is a powerful command that can be used for counting the number of logs that exist for a particular field. For example, the example below gives the count of all logs with `source` defined.
+Base count is a powerful command that can be used for counting the number of logs that exist for a particular field. For example, the example below gives the count of all logs with `from` defined.
 
 ```sh
-count(source) as src
+count(from) as src
 ```
 
 Running this command will give you the following output:
@@ -191,11 +210,11 @@ Running this command will give you the following output:
 
 <h6 id="aggregatedcount"> Aggregated Count </h4>
 
-Aggregations can be added in the count query for grouping fields accoring to a particular field. This can be achieved using the `by` keyword. For example, the following query will count all `level` fields and group them by the `source`. 
+Aggregations can be added in the count query for grouping fields accoring to a particular field. This can be achieved using the `by` keyword. For example, the following query will count all `level` fields and group them by the `from`. 
 
 
 ```sh
-count(level) as level_count by source
+count(level) as level_count by from
 ```
 Result will looks like
 ```json
@@ -203,21 +222,21 @@ Result will looks like
   "data": [
     {
       "level_count": "2",
-      "source": "app"
+      "from": "app"
     },
     {
       "level_count": "1",
-      "source": "backend"
+      "from": "backend"
     }
   ]
 }
 
 ```
 
-Structured JSON matching can also be used for counting. For example, the following command returns the count of all logs that have the `error_code` field inside `details` sub-structure, grouped by source.
+Structured JSON matching can also be used for counting. For example, the following command returns the count of all logs that have the `error_code` field inside `details` sub-structure, grouped by `from`.
 
 ```sh
-count(details.error_code) as error_code_count by source
+count(details.error_code) as error_code_count by from
 ```
 
 The output looks like this:
@@ -227,69 +246,223 @@ The output looks like this:
   "data": [
     {
       "error_code_count": "1",
-      "source": "backend"
+      "from": "backend"
     },
     {
       "error_code_count": "1",
-      "source": "app"
+      "from": "app"
     }
   ]
 }
 ```
+
+[Go to index](#index)
 
 <br>
 
 ### Average
 ---
 
-you can find the average of the numerical fields. 
+The `avg` keyword can be used to find the average of numerical fields in a structured logging scheme. It supports aggregations as well.
 
-This below query will find the average latency of your service.
+Let us consider the following log JSON:
 
-```sh
-avg(latency) as average_latency
+```json
+{
+  "data": [
+    {
+      "ts": 3,
+      "entry": {
+        "country": "Afghanistan",
+        "details": {
+          "latency": 9.82
+        },
+        "level": "info"
+      },
+      "source": "demo"
+    },
+    {
+      "ts": 2,
+      "entry": {
+        "country": "Pakistan",
+        "details": {
+          "latency": 6.45
+        },
+        "level": "info"
+      },
+      "source": "demo"
+    },
+    {
+      "ts": 1,
+      "entry": {
+        "country": "India",
+        "details": {
+          "latency": 3.26
+        },
+        "level": "info"
+      },
+      "source": "demo"
+    }
+  ]
+}
 ```
 
-You can apply grouping in the average quries as well.
 
-The below query will find the averge latency by country wise.
+<h6 id="baseaverage"> Base Average </h4>
+
+The following query will find the average latency of your service.
+
 ```sh
-avg(latency) as average_latency by country
+avg(details.latency) as average_latency
 ```
+
+The output looks like this:
+
+```json
+{
+  "data": [
+    {
+      "average_latency": "6.51"
+    }
+  ]
+}
+```
+
+<h6 id="aggregatedaverage"> Aggregated Average </h4>
+
+Average also supports aggregations. For example, the follwoing query will country-wise average latency.
+
+```sh
+avg(details.latency) as average_latency by country
+```
+
+The output looks like this:
+
+```json
+{
+  "data": [
+    {
+      "average_latency": "3.26",
+      "country": "India"
+    },
+    {
+      "average_latency": "6.45",
+      "country": "Pakistan"
+    },
+    {
+      "average_latency": "9.82",
+      "country": "Afghanistan"
+    }
+  ]
+}
+```
+
+
+[Go to index](#index)
 
 <br>
 
 ### Distinct
 ---
 
-You can find the distict elements by distinct key word
+Distinct elements can be found, aggregated and printed using the `distinct` keyword. The distinct command also provides a feature to count the number of distinct logs matched.
 
-The below query will give you all the distict country value.
-```sh
-distinct(country) as dictinct_country
-```
+<h6 id="basedistinct"> Base Distinct </h4>
 
-In order to find distinct value count, you can use `distinct_count` keyword.
+Following the example from [count](#count), the following command will give you a list of all distinct levels in the logs. 
 
 ```sh
-distinct_count(country) as country_count
+distinct(level) as lvl
 ```
 
-Result will looks like
+The output will look something like this:
+
 ```json
 {
-    "data":[
-        {
-            "country_count": 100,
-            "country": "Kumari Kandam"
-        },
-        {
-            "country_count": 100,
-            "country": "Atlantis"
-        }
-    ]
+  "data": [
+    "fatal",
+    "warn"
+  ]
 }
 ```
+
+<h6 id="countdistinct"> Count Distinct </h4>
+
+In order to find distinct value count, you can use `distinct_count` keyword. The following command will give you a list of all distinct levels in the logs along with their count.
+
+```sh
+distinct_count(level) as lvl
+```
+
+The output will look something like this:
+
+```json
+{
+  "data": [
+    {
+      "fatal": 2
+    },
+    {
+      "warn": 1
+    }
+  ]
+}
+```
+
+Structured JSON matching can also be used here. For example, the following command will return a list of all distinct error codes along with their count.
+
+```sh
+distinct_count(details.error_code) as lvl
+```
+
+The output looks like this:
+
+```json
+{
+  "data": [
+    {
+      "500": 2
+    }
+  ]
+}
+```
+
+[Go to index](#index)
+
+<br>
+
+### Limit
+---
+
+Limit command can be used to limit the number of responses that we get out of Pathivu query results. For example, in the logs provided [here](#average), the following query can be used to limit the number of responses:
+
+```sh
+limit 1
+```
+
+The output will look like this:
+
+```json
+{
+  "data": [
+    {
+      "ts": 3,
+      "entry": {
+        "country": "Afghanistan",
+        "details": {
+          "latency": 9.82
+        },
+        "level": "info"
+      },
+      "source": "demo"
+    }
+  ]
+}
+```
+
+By default, limits are applied from the latest timestamp in Pathivu.
+
+[Go to index](#index)
 
 <br>
 
@@ -303,6 +476,8 @@ The below query find the count of all the failed transaction country wise.
 transaction="failed" | distinct_count(country) as failed_transaction_country_wise
 ```
 
+[Go to index](#index)
+
 <br>
 
 ### Source
@@ -311,5 +486,9 @@ transaction="failed" | distinct_count(country) as failed_transaction_country_wis
 User can specify the sources that the user would like to serach on using `source` keyword. Multiple sources are mentioned using `,`.
 
 ```sh
-source=transaction_service,refund_service
+source=master,slave
 ```
+
+This will output all logs with the source as `master` *and* `slave`.
+
+[Go to index](#index)
