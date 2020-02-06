@@ -412,7 +412,7 @@ The output will look something like this:
 Structured JSON matching can also be used here. For example, the following command will return a list of all distinct error codes along with their count.
 
 ```sh
-distinct_count(details.error_code) as lvl
+distinct_count(details.error_code)
 ```
 
 The output looks like this:
