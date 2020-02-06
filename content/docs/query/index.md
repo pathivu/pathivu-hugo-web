@@ -469,11 +469,111 @@ By default, limits are applied from the latest timestamp in Pathivu.
 ### Pipe
 ---
 
-User can combine two quries using `|` operator
+Pathivu supports piping as well. Here, you can combine two or more queries, one after the other. This gives Pathivu immense querying capabilities.
 
-The below query find the count of all the failed transaction country wise.
+Below are a couple of examples as to how piping can be used to make powerful and meaningful queries. Note that all of the queries are performed on the following JSON:
+
+```json
+{
+  "data": [
+    {
+      "ts": 3,
+      "entry": {
+        "country": "Afghanistan",
+        "details": {
+          "latency": 9.82
+        },
+        "level": "info",
+        "transaction": "succeeded"
+      },
+      "source": "demo"
+    },
+    {
+      "ts": 2,
+      "entry": {
+        "country": "Pakistan",
+        "details": {
+          "latency": 6.45
+        },
+        "level": "info",
+        "transaction": "failed"
+      },
+      "source": "demo"
+    },
+    {
+      "ts": 1,
+      "entry": {
+        "country": "India",
+        "details": {
+          "latency": 3.26
+        },
+        "level": "info",
+        "transaction": "succeeded"
+      },
+      "source": "demo"
+    }
+  ]
+}
+```
+
+<br>
+
+* The following query will give you all of the failed transaction logs grouped by country.
+
 ```sh
 transaction="failed" | distinct_count(country) as failed_transaction_country_wise
+```
+
+So the output will look something like this:
+
+```json
+{
+  "data": [
+    {
+      "Pakistan": 1
+    }
+  ]
+}
+```
+
+<br>
+
+* The following command will give you the average latency of the 2 latest logs.
+
+```sh
+limit 2 | avg(details.latency) as average_latency
+```
+
+The output looks like this:
+
+```json
+{
+  "data": [
+    {
+      "average_latency": "8.13"
+    }
+  ]
+}
+```
+
+<br>
+
+* The following command will give you the count of all info-level logs.
+
+```sh
+level="info" | count(level) as level_count
+```
+
+The output looks like this:
+
+```json
+{
+  "data": [
+    {
+      "level_count": "3"
+    }
+  ]
+}
 ```
 
 [Go to index](#index)
