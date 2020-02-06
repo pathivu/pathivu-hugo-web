@@ -85,7 +85,7 @@ Pathivu supports two types of search queries, namely fuzzy search and structured
 
 <h6 id="fuzzysearch"> Fuzzy Search </h4>
 
-The `message` keyword is used for fuzzy searching in Pathivu. A simple example is given below:
+The `message` keyword is used for fuzzy searching in Pathivu. The fuzziness level is configurable. A simple example is given below:
 ```sh
 message = "warn"
 ```
@@ -372,7 +372,7 @@ Distinct elements can be found, aggregated and printed using the `distinct` keyw
 Following the example from [count](#count), the following command will give you a list of all distinct levels in the logs. 
 
 ```sh
-distinct(level) as lvl
+distinct(level)
 ```
 
 The output will look something like this:
@@ -391,7 +391,7 @@ The output will look something like this:
 In order to find distinct value count, you can use `distinct_count` keyword. The following command will give you a list of all distinct levels in the logs along with their count.
 
 ```sh
-distinct_count(level) as lvl
+distinct_count(level)
 ```
 
 The output will look something like this:
