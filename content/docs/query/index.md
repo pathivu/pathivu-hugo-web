@@ -536,28 +536,6 @@ So the output will look something like this:
 }
 ```
 
-<br>
-
-* The following command will give you the average latency of the 2 latest logs.
-
-```sh
-limit 2 | avg(details.latency) as average_latency
-```
-
-The output looks like this:
-
-```json
-{
-  "data": [
-    {
-      "average_latency": "8.13"
-    }
-  ]
-}
-```
-
-<br>
-
 * The following command will give you the count of all info-level logs.
 
 ```sh
